@@ -5,7 +5,8 @@ var numCorrect = 0;
 var numIncorrect = 0;
 var buttonClicked = false;
 var clickedValue = 0;
-
+var currentAnswer = false;
+var i = 0;
 var questions = [
     ["Prompt", "Correct", "Incorrect", "Incorrect", "Incorrect", 1],
     ["Prompt", "Incorrect", "Incorrect", "Correct", "Incorrect", 3],
@@ -21,72 +22,22 @@ var questions = [
 
 //timer variables
 var timeLeft = 30;
-var timerDone=false;
+var keyPageTime = 3;
+var timerDone = false;
 var intervalId;
 
+
+//TO DO
+// Correct/Incorrect page
+// end the game when i == questions.length
 
 ///////////////////////
 ///////BASE CODE///////
 ///////////////////////
 buildPage();
-
-
-for (var i = 0; i < questions.length; i++) {
-
-    startRound(i);
-    waitForTimer(timerDone);
-    checkAnswer(i)
-
-
-
-
-    //correct or incorrect page
-    // if clickedValue = questions[i][5] =====> correct
-
-    // add way to loop again, resetting
-}
-
-///////////////////////
-///////FUNCTIONS///////
-///////////////////////
-function buildPage() {
-    $("<h1>").text("TRIVIA GAME!!!").appendTo('#game');
-    $('<div>', { id: 'time-remaining' }).appendTo('#game');
-    $('<div>', { id: 'prompt' }).appendTo('#game');
-    $('<div>', { id: 'buttons' }).appendTo('#game');
-    $('<button>', { class: 'choice', id: 'button-1', value: 1 }).appendTo('#buttons');
-    $('<button>', { class: 'choice', id: 'button-2', value: 2 }).appendTo('#buttons');
-    $('<button>', { class: 'choice', id: 'button-3', value: 3 }).appendTo('#buttons');
-    $('<button>', { class: 'choice', id: 'button-4', value: 4 }).appendTo('#buttons');
-}
-function clearPage() {
-    $('game').empty();
-}
-function startRound(position) {
-    $('#prompt').text(questions[position][0]);
-    $('#button-1').text(questions[position][1]);
-    $('#button-2').text(questions[position][2]);
-    $('#button-3').text(questions[position][3]);
-    $('#button-4').text(questions[position][4]);
-    startTimer();
-}
-function resetRound() {
-    timeLeft = 30;
-    buttonClicked = false;
-    clickedValue = 0;
-    $('prompt').empty();
-}
-function checkAnswer(position) {
-    if (clickedValue === questions[position][5]) {
-        numCorrect++;
-    } else { numIncorrect++; }
-}
-
-////TIMER FUNCTIONS////////
-function startTimer() {
-    clearInterval(intervalId);
-    intervalId = setInterval(decrement, 1000);
-}
+startRound();
+clearInterval(intervalId);
+intervalId = setInterval(decrement, 1000);
 function decrement() {
     timeLeft--;
     $('#time-remaining').empty();
@@ -98,23 +49,128 @@ function decrement() {
         buttonClicked = true;
     }
 
-    if (timeLeft === 0) {
+    if (timeLeft === 0 && !buttonClicked) {
+        i++;
         stopTimer();
+        timerDone = true;
+        //other stuff
         //out of time conditions
+        keyPage();
+        if (i < questions.length) {
+            buildPage();
+            resetRound();
+        }
     }
     if (buttonClicked) {
+        i++;
         stopTimer();
+        timerDone = true;
+        if (checkAnswer()) {
+            currentAnswer = true;
+        }
+            //     clearInterval(intervalId);
+            // intervalId = setInterval(countDown, 1000);
+            // function countDown() {
+            //     keyPageTime--;
+            //     if (keyPageTime===0){stopTimer;}
+            //     keyPage();}
+        //other stuff
+    
+        if (i < questions.length) {
+            buildPage();
+            resetRound();
+        }
     }
 }
+
+gameOver();
+
+
+
+
+
+
+///////////////////////
+///////FUNCTIONS///////
+///////////////////////
+function buildPage() {
+    $('#game').empty();
+    $("<h1>").text("TRIVIA GAME!!!").appendTo('#game');
+    $('<div>', { id: 'time-remaining' }).appendTo('#game');
+    $('<div>', { id: 'prompt' }).appendTo('#game');
+    $('<div>', { id: 'buttons' }).appendTo('#game');
+    $('<button>', { class: 'choice', id: 'button-1', value: 1 }).appendTo('#buttons');
+    $('<button>', { class: 'choice', id: 'button-2', value: 2 }).appendTo('#buttons');
+    $('<button>', { class: 'choice', id: 'button-3', value: 3 }).appendTo('#buttons');
+    $('<button>', { class: 'choice', id: 'button-4', value: 4 }).appendTo('#buttons');
+}
+function keyPage() {
+    $('#game').empty();
+    
+        $('<div>', { id: 'result' }).appendTo('#game');
+        if(currentAnswer){
+            $('#result').text("CORRECT!");
+        }
+        else{
+            $('#result').text("INCORRECT!");
+        }
+
+        $('<div>', { id: 'image-container' }).appendTo('#game');
+    
+
+
+}
+function startRound() {
+    $('#prompt').text(questions[i][0]);
+    $('#button-1').text(questions[i][1]);
+    $('#button-2').text(questions[i][2]);
+    $('#button-3').text(questions[i][3]);
+    $('#button-4').text(questions[i][4]);
+
+}
+function resetRound() {
+    timeLeft = 30;
+    buttonClicked = false;
+    clickedValue = 0;
+    $('prompt').empty();
+    startRound();
+    clearInterval(intervalId);
+    intervalId = setInterval(decrement, 1000);
+}
+function checkAnswer() {
+    var isCorrect = false
+    if (clickedValue === questions[i][5]) {
+        numCorrect++;
+        isCorrect = true;
+    } else { numIncorrect++; }
+    return isCorrect;
+}
+function gameOver() {
+
+
+
+}
+function newGame() {
+    numCorrect = 0;
+    numIncorrect = 0;
+    i = 0;
+    resetRound();
+}
+
+
+////TIMER FUNCTIONS////////
+
+
 function stopTimer() {
     clearInterval(intervalId);
 }
-function waitForTimer(isDone){
-    //recursive function to check if done
-    //be careful to not loop infinitely
-}
-
-
+//recursive function to hold for loop until button is clicked or timer is finished
+// has to be a cleaner way to achieve this
+// function waitForTimer(){
+//     if (!timerDone){
+//         waitForTimer()
+//     }
+// }
 
 
 
