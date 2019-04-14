@@ -5,6 +5,7 @@ var numCorrect = 0;
 var numIncorrect = 0;
 var buttonClicked = false;
 var clickedValue = 0;
+
 var questions = [
     ["Prompt", "Correct", "Incorrect", "Incorrect", "Incorrect", 1],
     ["Prompt", "Incorrect", "Incorrect", "Correct", "Incorrect", 3],
@@ -15,11 +16,12 @@ var questions = [
     ["Prompt", "Incorrect", "Incorrect", "Correct", "Incorrect", 3],
     ["Prompt", "Incorrect", "Incorrect", "Incorrect", "Correct", 4],
     ["Prompt", "Incorrect", "Incorrect", "Incorrect", "Correct", 4],
-    ["Prompt", "Correct", "Incorrect", "Incorrect", "Incorrect", 1],
+    ["Prompt", "Incorrect", "Correct", "Incorrect", "Incorrect", 2],
 ]
 
 //timer variables
 var timeLeft = 30;
+var timerDone=false;
 var intervalId;
 
 
@@ -29,55 +31,90 @@ var intervalId;
 buildPage();
 
 
-for(var i = 0; i<questions.length; i++){
-    //while loop for question and timer
-    while (timeLeft > 0 && !buttonClicked){
-        startTimer();
-        updatePage(i);
-    }
+for (var i = 0; i < questions.length; i++) {
+
+    startRound(i);
+    waitForTimer(timerDone);
+    checkAnswer(i)
+
+
+
+
     //correct or incorrect page
     // if clickedValue = questions[i][5] =====> correct
+
+    // add way to loop again, resetting
 }
 
 ///////////////////////
 ///////FUNCTIONS///////
 ///////////////////////
-function buildPage(){
+function buildPage() {
     $("<h1>").text("TRIVIA GAME!!!").appendTo('#game');
-    $('<div>', {id: 'time-remaining'}).appendTo('#game');
-    $('<div>', {id: 'prompt'}).appendTo('#game');
-    $('<div>', {id: 'buttons'}).appendTo('#game');
-    $('<button>', {id: 'button-1', value: 1}).appendTo('#buttons');
-    $('<button>', {id: 'button-2', value: 2}).appendTo('#buttons');
-    $('<button>', {id: 'button-3', value: 3}).appendTo('#buttons');
-    $('<button>', {id: 'button-4', value: 4}).appendTo('#buttons');
+    $('<div>', { id: 'time-remaining' }).appendTo('#game');
+    $('<div>', { id: 'prompt' }).appendTo('#game');
+    $('<div>', { id: 'buttons' }).appendTo('#game');
+    $('<button>', { class: 'choice', id: 'button-1', value: 1 }).appendTo('#buttons');
+    $('<button>', { class: 'choice', id: 'button-2', value: 2 }).appendTo('#buttons');
+    $('<button>', { class: 'choice', id: 'button-3', value: 3 }).appendTo('#buttons');
+    $('<button>', { class: 'choice', id: 'button-4', value: 4 }).appendTo('#buttons');
 }
-function updatePage(position){
+function clearPage() {
+    $('game').empty();
+}
+function startRound(position) {
     $('#prompt').text(questions[position][0]);
-        $('#button-1').text(questions[position][1]);
-        $('#button-2').text(questions[position][2]);
-        $('#button-3').text(questions[position][3]);
-        $('#button-4').text(questions[position][4]);
+    $('#button-1').text(questions[position][1]);
+    $('#button-2').text(questions[position][2]);
+    $('#button-3').text(questions[position][3]);
+    $('#button-4').text(questions[position][4]);
+    startTimer();
 }
-function clearPage(){
-
-}
-function resetRound(){
+function resetRound() {
     timeLeft = 30;
     buttonClicked = false;
+    clickedValue = 0;
     $('prompt').empty();
 }
-function startTimer(){
+function checkAnswer(position) {
+    if (clickedValue === questions[position][5]) {
+        numCorrect++;
+    } else { numIncorrect++; }
+}
+
+////TIMER FUNCTIONS////////
+function startTimer() {
     clearInterval(intervalId);
     intervalId = setInterval(decrement, 1000);
 }
-function decrement(){
+function decrement() {
     timeLeft--;
     $('#time-remaining').empty();
-    $('#time-remaining').text('Time Remaining: ' + timeLeft + 'Seconds');
-    if (timeLeft === 0){
-        clearInterval(intervalId);
+    $('#time-remaining').text('Time Remaining: ' + timeLeft + ' Seconds');
+
+    $(document).on("click", ".choice", getButtonValue);
+    function getButtonValue() {
+        clickedValue = $(this).attr("value");
+        buttonClicked = true;
+    }
+
+    if (timeLeft === 0) {
+        stopTimer();
         //out of time conditions
     }
+    if (buttonClicked) {
+        stopTimer();
+    }
 }
-//on clicks, update clickedValue with $(this). whatever getting value is
+function stopTimer() {
+    clearInterval(intervalId);
+}
+function waitForTimer(isDone){
+    //recursive function to check if done
+    //be careful to not loop infinitely
+}
+
+
+
+
+
